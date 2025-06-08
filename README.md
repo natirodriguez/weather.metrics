@@ -89,11 +89,15 @@ spring.data.mongodb.database=**Nombre de la database**
 
 ## Ejecución
 
-Abrir consola en el workspace de Weather Loader y correr el siguiente comando:
+Abrir consola en la carpeta de Kafka para inicializar Zookeeper:
 ```bash
-.\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic weather-data --from-beginning
+.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
 ```
-Abrir consola en el workspace de Weather Metrics y correr el siguiente comando:
+Abrir otra consola en la carpeta de Kafka para inicializar el server:
+```bash
+.\bin\windows\kafka-server-start.bat .\config\server.properties
+```
+Abrir una ultima consola en Kafka y ejecturar el consumidor:
 ```bash
 .\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic weather-data --from-beginning
 ```
