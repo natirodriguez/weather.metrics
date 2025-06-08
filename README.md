@@ -90,9 +90,13 @@ spring.data.mongodb.database=**Nombre de la database**
 ## Ejecución
 
 Abrir consola en el workspace de Weather Loader y correr el siguiente comando:
+```bash
 .\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic weather-data --from-beginning
+```
 Abrir consola en el workspace de Weather Metrics y correr el siguiente comando:
+```bash
 .\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic weather-data --from-beginning
+```
 
 Abrir una consola CMD en donde se encuentra el codigo del proyecto descargado y ejecutar el siguiente comando:
 
