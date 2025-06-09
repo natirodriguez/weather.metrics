@@ -13,7 +13,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 @Service
@@ -33,10 +35,19 @@ public class WeatherMetricsService {
     private final int min_per_hour = 60; 
     private final int sec_per_min = 60; 
     
+    private ITimeProvider timeProvider;
+
     @Autowired
     public WeatherMetricsService(KafkaConsumer<String, String> kafkaConsumer, JedisPool jedisPool) {
         this.kafkaConsumer = kafkaConsumer;
         this.jedisPool = jedisPool;
+        this.timeProvider = TimeProvider.getInstance();
+    }
+    
+    public WeatherMetricsService(KafkaConsumer<String, String> kafkaConsumer, JedisPool jedisPool, ITimeProvider timeProvider) {
+        this.kafkaConsumer = kafkaConsumer;
+        this.jedisPool = jedisPool;
+        this.timeProvider = timeProvider != null ? timeProvider : TimeProvider.getInstance();
     }
 
     @PostConstruct
@@ -51,17 +62,18 @@ public class WeatherMetricsService {
         kafkaConsumer.wakeup();
         kafkaConsumer.close();
     }
-
+    
     private void pollKafkaLoop() {
         try {
             while (running) {
-            	var records = kafkaConsumer.poll(Duration.ofHours(1));
+            	var records = kafkaConsumer.poll(Duration.ofMinutes(1));
                 if (records.isEmpty()) {
                     System.out.println("No records received.");
                 } else {
                     System.out.println("Received " + records.count() + " records.");
                     for (ConsumerRecord<String, String> record : records) {
                         processMessage(record.value());
+                        printRedisData();
                     }
                 }
             }
@@ -72,12 +84,12 @@ public class WeatherMetricsService {
         }
     }
 
-    private void processMessage(String json) {
+    public void processMessage(String json) {
         try (Jedis jedis = jedisPool.getResource()) {
             JsonNode root = objectMapper.readTree(json);
             String city = root.path("name").asText();
             double temp = root.path("main").path("temp").asDouble();
-            long timestamp = System.currentTimeMillis();
+            long timestamp = timeProvider.currentTimeMillis(); // Use timeProvider here
 
             // Guardar la temperatura actual en Redis
             jedis.hset(REDIS_KEY_CURRENT_TEMP, city, String.valueOf(temp));
@@ -85,7 +97,6 @@ public class WeatherMetricsService {
             // Guardar temperaturas históricas en SortedSet
             String lastDayKey = REDIS_KEY_TEMP_LAST_DAY + ":" + city;
             String lastWeekKey = REDIS_KEY_TEMP_LAST_WEEK + ":" + city;
-            System.out.println("Last day: " + lastDayKey);
             
             jedis.zadd(lastDayKey, timestamp, String.valueOf(temp));
             jedis.zadd(lastWeekKey, timestamp, String.valueOf(temp));
@@ -94,14 +105,13 @@ public class WeatherMetricsService {
 
             // Eliminar entradas en los conjuntos ordenados (Sorted Sets) de Redis que ya no son relevantes para el cálculo de promedios.
             long oneWeekMillis = 7L * secondPerDay * 1000;
-            long now = System.currentTimeMillis();
+            long now = timeProvider.currentTimeMillis(); // Use timeProvider here
             jedis.zremrangeByScore(lastDayKey, 0, now - oneWeekMillis);
             jedis.zremrangeByScore(lastWeekKey, 0, now - oneWeekMillis);
             
             // Evita almacenamiento infinito
-            jedis.expire(lastDayKey, secondPerDay * 8); // segundos al dia x 8 días
-            jedis.expire(lastWeekKey, secondPerDay * 8); // segundos al dia x 8 días
-            
+            jedis.expire(lastDayKey, secondPerDay * 1); // segundos al dia x 1 día
+            jedis.expire(lastWeekKey, secondPerDay * 1); // segundos al dia x 1 día
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -116,7 +126,29 @@ public class WeatherMetricsService {
                     .collect(TreeMap::new, (m, e) -> m.put(e.getKey(), Double.parseDouble(e.getValue())), Map::putAll);
         }
     }
-
+    
+	private void printRedisData() {
+	    try (Jedis jedis = jedisPool.getResource()) {
+	        // Imprimir temperaturas actuales
+	        Map<String, String> currentTemps = jedis.hgetAll(REDIS_KEY_CURRENT_TEMP);
+	        System.out.println("Current Temperatures: " + currentTemps);
+	        
+	        // Imprimir temperaturas del último día
+	        for (String city : currentTemps.keySet()) {
+	            List<String> lastDayTemps = jedis.zrange(REDIS_KEY_TEMP_LAST_DAY + ":" + city, 0, -1);
+	            System.out.println("Last Day Temperatures for " + city + ": " + lastDayTemps);
+	        }
+	        
+	        // Imprimir temperaturas de la última semana
+	        for (String city : currentTemps.keySet()) {
+	            List<String> lastWeekTemps = jedis.zrange(REDIS_KEY_TEMP_LAST_WEEK + ":" + city, 0, -1);
+	            System.out.println("Last Week Temperatures for " + city + ": " + lastWeekTemps);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+	
     public Map<String, Double> getAverageTemperatureLastDay() {
         return getAverageTemperatureForPeriod(24 * 60 * 60 * 1000L);
     }
@@ -131,20 +163,24 @@ public class WeatherMetricsService {
         try (Jedis jedis = jedisPool.getResource()) {
         	int seconds = hours_per_day * min_per_hour * sec_per_min;
             String keyPattern = (periodMillis == seconds * 1000L) ? REDIS_KEY_TEMP_LAST_DAY + ":*" : REDIS_KEY_TEMP_LAST_WEEK + ":*";
+
             var keys = jedis.keys(keyPattern);
 
-            long now = System.currentTimeMillis();
+            long now = timeProvider.currentTimeMillis(); 
 
             for (String key : keys) {
                 String city = key.substring(key.indexOf(":") + 1);
                 long timeFrom = now - periodMillis;
 
+                System.out.println("Service: Processing key: " + key + ", City: " + city); 
+                
                 var tempsStr = jedis.zrangeByScore(key, timeFrom, now);
                 var temps = tempsStr.stream().map(Double::parseDouble).toList();
 
                 if (!temps.isEmpty()) {
                     double avg = temps.stream().mapToDouble(Double::doubleValue).average().orElse(Double.NaN);
                     averages.put(city, avg);
+                    System.out.println("Service: Added average for " + city + ": " + avg); 
                 }
             }
         } catch (Exception e) {
