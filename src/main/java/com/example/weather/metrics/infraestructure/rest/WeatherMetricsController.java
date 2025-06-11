@@ -1,6 +1,5 @@
 package com.example.weather.metrics.infraestructure.rest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,7 +12,6 @@ public class WeatherMetricsController {
 
     private final WeatherMetricsService weatherMetricsService;
 
-    @Autowired
     public WeatherMetricsController(WeatherMetricsService weatherMetricsService) {
         this.weatherMetricsService = weatherMetricsService;
     }
@@ -23,7 +21,7 @@ public class WeatherMetricsController {
         return weatherMetricsService.getCurrentTemperatures();
     }
 
-    @GetMapping("/weather/average/day")
+    @GetMapping("/weather/average/today")
     public Map<String, Double> getAverageTemperatureLastDay() {
         return weatherMetricsService.getAverageTemperatureLastDay();
     }

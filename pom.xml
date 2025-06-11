@@ -39,6 +39,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
 		
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -65,18 +69,6 @@
 		    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 		    <version>2.8.8</version>
 		</dependency>
-		
-		<dependency>
-		    <groupId>org.apache.kafka</groupId>
-		    <artifactId>kafka-clients</artifactId>
-	    	<version>4.0.0</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>redis.clients</groupId>
-		    <artifactId>jedis</artifactId>
-		    <version>6.0.0</version>
-		</dependency>
 
 		<dependency>
 		    <groupId>javax.annotation</groupId>
@@ -100,6 +92,19 @@
 		    <artifactId>junit-jupiter-params</artifactId> 
 		    <scope>test</scope>
 		</dependency>
+
+		<!-- Prometheus-->
+	   <dependency>
+	       <groupId>io.prometheus</groupId>
+	       <artifactId>simpleclient</artifactId>
+	       <version>0.16.0</version> <!-- Asegúrate de usar la versión más reciente -->
+	   </dependency>
+	   <dependency>
+	       <groupId>io.prometheus</groupId>
+	       <artifactId>simpleclient_httpserver</artifactId>
+	       <version>0.16.0</version>
+	   </dependency>
+   
 	    <!-- Mockito JUnit 5 -->
 	    <dependency>
 	        <groupId>org.mockito</groupId>
@@ -117,6 +122,12 @@
 		    <groupId>org.springframework.cloud</groupId>
 		    <artifactId>spring-cloud-starter-openfeign</artifactId>
 		    <version>4.2.1</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.github.ben-manes.caffeine</groupId>
+		    <artifactId>caffeine</artifactId>
+		    <version>3.2.0</version>
 		</dependency>
 	</dependencies>
 
