@@ -1,5 +1,7 @@
 package com.example.weather.metrics.infraestructure.rest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,6 +11,7 @@ import java.util.Map;
 
 @RestController
 public class WeatherMetricsController {
+    private static final Logger logger = LogManager.getLogger(WeatherMetricsController.class);
 
     private final WeatherMetricsService weatherMetricsService;
 
@@ -18,16 +21,19 @@ public class WeatherMetricsController {
 
     @GetMapping("/weather/current")
     public Map<String, Double> getCurrentTemperatures() {
+    	logger.info("Ejecución del endpoint: getCurrentTemperatures()");
         return weatherMetricsService.getCurrentTemperatures();
     }
 
     @GetMapping("/weather/average/today")
     public Map<String, Double> getAverageTemperatureLastDay() {
+    	logger.info("Ejecución del endpoint: getAverageTemperatureLastDay()");
         return weatherMetricsService.getAverageTemperatureLastDay();
     }
 
     @GetMapping("/weather/average/week")
     public Map<String, Double> getAverageTemperatureLastWeek() {
+    	logger.info("Ejecución del endpoint: getAverageTemperatureLastWeek()");
         return weatherMetricsService.getAverageTemperatureLastWeek();
     }
 }

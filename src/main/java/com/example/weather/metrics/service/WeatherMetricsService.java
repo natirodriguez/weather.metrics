@@ -1,7 +1,11 @@
 package com.example.weather.metrics.service;
 
+import com.example.weather.metrics.Application;
 import com.example.weather.metrics.infraestructure.client.LoaderClient;
 import com.example.weather.metrics.infraestructure.client.WeatherDataDTO;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -12,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class WeatherMetricsService {
+    private static final Logger logger = LogManager.getLogger(WeatherMetricsService.class);
 
     private final LoaderClient loaderClient; 
 
@@ -25,6 +30,9 @@ public class WeatherMetricsService {
         Map<String, Double> currentTemps = new TreeMap<>();
         if (currentData != null) {
             currentTemps.put(currentData.getCity(), currentData.getTemperature());
+        }
+        else {
+        	logger.error("Current data es nulo");
         }
         return currentTemps;
     }
