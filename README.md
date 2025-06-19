@@ -5,8 +5,7 @@
 - Java 21
 - Maven 3.3.3 o superior
 - MongoAtlas 8.0.8
-- Kafka 3.9.1 Binary Downloads Scala 2.13
-- Redis 5.0.14.1
+- Prometheus
 
 ## Instalación
 
@@ -51,13 +50,22 @@ Luego configure las siguientes variables de entorno:
     ```
     ;%MAVEN_HOME%\bin
     ```
-### Instalar Kafka en Windows
-Bajar la version de [Kafka](https://kafka.apache.org/downloads)
-Descomprimirlo, y poner la carpeta en el disco C://
-Abrir la carpeta de config y modificar las rutas de los archivos de zookeeper y server
-
-### Instalar Redis en Windows
-Bajar la versión de [Redis](https://github.com/tporadowski/redis/releases)
+### Instalar Prometheus en Windows
+Bajar la version de [Prometheus](https://prometheus.io/download/)
+Descomprimirlo
+Agregarle esta configuracion en el archivo Prometheus.yml
+```
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "weather-metrics"
+    metrics_path: '/actuator/prometheus'
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+    static_configs:
+      - targets: ["localhost:8080"]
+```
+Sobre la carpeta de prometheus, abrir la consola y ejecutar: 
+>prometheus.exe --config.file=prometheus.yml
 
 ### Configurar MongoAtlas
 
@@ -85,21 +93,6 @@ Configurar el archivo `application.properties` del proyecto:
 ```properties
 spring.data.mongodb.uri=**URI de conexión** recientemente copiada
 spring.data.mongodb.database=**Nombre de la database**
-```
-
-## Ejecución
-
-Abrir consola en la carpeta de Kafka para inicializar Zookeeper:
-```bash
-.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
-```
-Abrir otra consola en la carpeta de Kafka para inicializar el server:
-```bash
-.\bin\windows\kafka-server-start.bat .\config\server.properties
-```
-Abrir una ultima consola en Kafka y ejecturar el consumidor:
-```bash
-.\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic weather-data --from-beginning
 ```
 
 Abrir una consola CMD en donde se encuentra el codigo del proyecto descargado y ejecutar el siguiente comando:
