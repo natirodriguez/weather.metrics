@@ -94,16 +94,19 @@
 		</dependency>
 
 		<!-- Prometheus-->
-	   <dependency>
-	       <groupId>io.prometheus</groupId>
-	       <artifactId>simpleclient</artifactId>
-	       <version>0.16.0</version> <!-- Asegúrate de usar la versión más reciente -->
-	   </dependency>
-	   <dependency>
-	       <groupId>io.prometheus</groupId>
-	       <artifactId>simpleclient_httpserver</artifactId>
-	       <version>0.16.0</version>
-	   </dependency>
+		<dependency>
+		    <groupId>io.micrometer</groupId>
+		    <artifactId>micrometer-core</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>io.micrometer</groupId>
+		    <artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
    
 	    <!-- Mockito JUnit 5 -->
 	    <dependency>
