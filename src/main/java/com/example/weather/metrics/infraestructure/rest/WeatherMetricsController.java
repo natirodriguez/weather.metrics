@@ -31,6 +31,7 @@ public class WeatherMetricsController {
         
         return weatherMetricsService.getCurrentTemperatures();
     }
+    
 
     @GetMapping("/weather/average/today")
     public Map<String, Double> getAverageTemperatureLastDay() {

@@ -29,19 +29,26 @@ public class WeatherMetricsService {
         this.averageTemperatureLastWeekCounter = meterRegistry.counter("weather.average.temperature.lastweek.service.calls");
     }
     
+    
     @Cacheable(value = "currentTemperature", key = "'current'")
     public Map<String, Double> getCurrentTemperatures() {
     	currentTemperatureCounter.increment();
-    	
-        WeatherDataDTO currentData = loaderClient.obtenerTemperaturaActual();
-        Map<String, Double> currentTemps = new TreeMap<>();
-        if (currentData != null) {
-            currentTemps.put(currentData.getCity(), currentData.getTemperature());
+        try {
+        	
+        	WeatherDataDTO currentData = loaderClient.obtenerTemperaturaActual();
+        	Map<String, Double> currentTemps = new TreeMap<>();
+        	if (currentData != null) {
+        		currentTemps.put(currentData.getCity(), currentData.getTemperature());
+        	}
+        	else {
+        		logger.error("Current data es nulo");
+        	}
+        	return currentTemps;
+        	
+        }catch(Exception e) {
+    		logger.error("Error al llamar al servicio satelite Loader", e);
+    		throw e;
         }
-        else {
-        	logger.error("Current data es nulo");
-        }
-        return currentTemps;
     }
     
     public Map<String, Double> getAverageTemperatureLastDay() {
