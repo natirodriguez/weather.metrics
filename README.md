@@ -67,6 +67,16 @@ scrape_configs:
 Sobre la carpeta de prometheus, abrir la consola y ejecutar: 
 >prometheus.exe --config.file=prometheus.yml
 
+Se puede verificar que funciona con la siguiente URL: http://localhost:8080/actuator/prometheus
+
+### Instalar Grafana en Windows
+Bajar la version de [Grafana](https://grafana.com/grafana/download)
+Descomprimirlo y ejecutarlo
+Sobre la carpeta bin de grafana, abrir la consola y ejecutar: 
+>grafana.exe server
+
+Se puede verificar que funciona con la siguiente URL: http://localhost:3000/dashboards
+
 ### Configurar MongoAtlas
 
 Ve a [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) y crea una cuenta si no tienes una, o inicia sesión si ya tienes una.
