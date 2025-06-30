@@ -6,6 +6,7 @@
 - Maven 3.3.3 o superior
 - MongoAtlas 8.0.8
 - Prometheus
+- Grafana
 
 ## Instalación
 
