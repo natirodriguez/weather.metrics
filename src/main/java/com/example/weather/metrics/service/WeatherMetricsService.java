@@ -128,6 +128,7 @@ public class WeatherMetricsService {
             Optional<Double> maxTemp = dailyData.stream()
                                                 .map(WeatherDataDTO::getTemperature)
                                                 .max(Comparator.naturalOrder());
+            System.out.println(maxTemp);
             maxTemp.ifPresent(val -> updateGaugeValue(dailyMaxTemperatureHolders, DEFAULT_CITY, val));
 
             Optional<Double> minTemp = dailyData.stream()
