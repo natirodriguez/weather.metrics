@@ -7,6 +7,7 @@
 - MongoAtlas 8.0.8
 - Prometheus
 - Grafana
+- JMeter
 
 ## Instalación
 
@@ -111,4 +112,10 @@ Abrir una consola CMD en donde se encuentra el codigo del proyecto descargado y 
 ```bash
 mvn spring-boot:run
 ```
+
+### Instalar JMeter y correr test de carga
+Bajar la última versión de [JMeter](https://jmeter.apache.org/download_jmeter.cgi) y descomprimirlo. 
+Dentro de la carpeta bin, es necesario buscar el archivo jmeter y ejecutarlo. 
+
+Dentro de Jmeter, ir a "Open" para importar los .jmx y presionar run. 
 
